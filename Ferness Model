@@ -1,0 +1,64 @@
+import pandas as pd
+import numpy as np
+
+base_year_matrix = pd.read_excel(r"#addresse file excel,pivot number of ...",sheet_name="#")
+base_year_matrix = base_year_matrix.to_numpy()
+PA = pd.read_excel(r"#addresse file excel mortabet b 30 nahie",sheet_name="#")
+Origin_Base = PA['#esme setun line 6 marbut b Product base'].values
+Origin_Base = np.transpose(Origin_Base)
+Destination_Base = PA['#esme setun line 6 marbut b Attract base'].values
+Origin_Horizon = PA['#esme setun line 6 marbut b Product Horizon'].values
+Origin_Horizon = np.transpose(Origin_Horizon)
+Destination_Horizon = PA['#esme setun line 6 marbyt b Attract Horizon'].values
+
+x = (30, 30)
+t = np.zeros(x)
+
+x = (1, 30)
+Destination_Model = np.zeros(x)
+
+x = (30, 1)
+Origin_Model = np.zeros(x)
+
+x = (30, 1)
+a = np.zeros(x)
+
+x = (1, 30)
+b = np.zeros(x)
+
+t = base_year_matrix
+
+Origin_Model = Origin_Base
+
+it = 1
+while it < 30:
+    a = Origin_Horizon/Origin_Model
+    a = np.nan_to_num(a, posinf=0, neginf=0)
+
+    for i in np.arange(0, 30):
+        for j in np.arange(0, 30):
+            t[i][j] = a[i]*t[i][j]
+            t = np.nan_to_num(t, posinf=0, neginf=0)
+
+    Destination_Model = np.sum(t, axis=0)
+    Origin_Model = np.sum(t, axis=1).transpose()
+
+    b = Destination_Horizon/Destination_Model
+    b = np.nan_to_num(b, posinf=0, neginf=0)
+
+    for i in np.arange(0, 30):
+        for j in np.arange(0, 30):
+            t[i][j] = t[i][j]*b[j]
+            t = np.nan_to_num(t, posinf=0, neginf=0)
+
+    Destination_Model = np.sum(t, axis=0)
+    Origin_Model = np.sum(t, axis=1).transpose()
+
+    a = Origin_Horizon/Origin_Model
+    a = np.nan_to_num(a, posinf=0, neginf=0)
+
+    it = it+1
+
+
+t_df=pd.DataFrame(t)
+t_df.to_excel(r"Address baraye save kardn ba pasvnde xlsx")
